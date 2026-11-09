@@ -31,26 +31,24 @@ double integral_omp(double a, double b, long long n, int threads)
     return sum * h;
 }
 
+double integral(double a, double b, long long n, int threads)
+{
+    if (threads == 1)
+        return integral_seq(a, b, n);
+    return integral_omp(a, b, n, threads);
+}
+
 long long find_n(double a, double b, double eps, int threads, double *res)
 {
     long long n = 10;
-    double prev, cur;
+    double prev;
+    double cur = integral(a, b, n, threads);
 
-    if (threads == 1)
-        prev = integral_seq(a, b, n);
-    else
-        prev = integral_omp(a, b, n, threads);
-
-    while (1) {
-        n *= 2;
-        if (threads == 1)
-            cur = integral_seq(a, b, n);
-        else
-            cur = integral_omp(a, b, n, threads);
-        if (fabs(cur - prev) < eps)
-            break;
+    do {
         prev = cur;
-    }
+        n *= 2;
+        cur = integral(a, b, n, threads);
+    } while (fabs(cur - prev) >= eps);
 
     *res = cur;
     return n;
