@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -32,19 +31,6 @@ double pi_omp(long long n)
     }
 
     return 4.0 * sum;
-}
-
-int used_threads(void)
-{
-    int count = 1;
-
-    #pragma omp parallel
-    {
-        if (omp_get_thread_num() == 0)
-            count = omp_get_num_threads();
-    }
-
-    return count;
 }
 
 double time_seq(long long n, double *pi)
@@ -136,7 +122,7 @@ int main(int argc, char *argv[])
     print_result("Последовательная версия", n, pi_s, t_seq, 1);
 
     double t_omp = time_omp(n, threads, &pi_p);
-    print_result("OpenMP", n, pi_p, t_omp, used_threads());
+    print_result("OpenMP", n, pi_p, t_omp, omp_get_max_threads());
 
     printf("Ускорение     S = T1 / Tp = %.2f\n", t_seq / t_omp);
     printf("Эффективность E = S / p   = %.1f %%\n",
